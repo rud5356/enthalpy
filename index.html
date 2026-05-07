@@ -55,35 +55,38 @@
       background: var(--primary);
       color: #fff;
       border-radius: 20px;
-      padding: 4px 14px;
+      padding: 5px 14px;
       font-size: 0.82rem;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     /* ── GRID ── */
     main {
-      max-width: 1100px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 40px 20px 60px;
+      padding: 36px 20px 60px;
     }
     .section-title {
       font-size: 1.3rem;
       font-weight: 800;
       color: var(--primary);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
+    /* 데스크톱: 5열 */
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
     }
-
-    /* ── CAT CARD ── */
     .cat-card {
+      width: 166px;
+      flex-shrink: 0;
       background: var(--card-bg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -97,6 +100,9 @@
       box-shadow: 0 10px 28px rgba(244,160,74,.22);
       border-color: var(--primary);
     }
+    .cat-card:active { transform: scale(.97); }
+    .cat-card { -webkit-tap-highlight-color: transparent; }
+
     .cat-card .photo-wrap {
       width: 100%;
       aspect-ratio: 1 / 1;
@@ -111,27 +117,25 @@
       height: 100%;
       object-fit: cover;
     }
-    .cat-card .photo-wrap .placeholder {
-      font-size: 3.5rem;
-    }
+    .cat-card .photo-wrap .placeholder { font-size: 3.5rem; }
     .cat-card .card-info {
       padding: 10px 10px 12px;
       text-align: center;
     }
     .cat-card .card-name {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 800;
       color: var(--text);
     }
     .cat-card .card-breed {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--muted);
       margin-top: 2px;
     }
     .cat-card .card-gender {
       display: inline-block;
       margin-top: 5px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       padding: 2px 8px;
       border-radius: 10px;
       font-weight: 700;
@@ -144,7 +148,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.45);
+      background: rgba(0,0,0,.5);
       z-index: 100;
       align-items: center;
       justify-content: center;
@@ -157,13 +161,14 @@
       border-radius: 24px;
       max-width: 420px;
       width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: 0 20px 60px rgba(0,0,0,.25);
-      overflow: hidden;
       animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
       position: relative;
     }
     @keyframes popIn {
-      from { transform: scale(.85); opacity: 0; }
+      from { transform: scale(.88); opacity: 0; }
       to   { transform: scale(1);   opacity: 1; }
     }
 
@@ -179,9 +184,7 @@
     .modal-photo img { width:100%; height:100%; object-fit:cover; }
     .modal-photo .placeholder { font-size: 6rem; }
 
-    .modal-body {
-      padding: 22px 24px 28px;
-    }
+    .modal-body { padding: 22px 24px 32px; }
     .modal-tagline {
       font-size: 0.85rem;
       color: var(--muted);
@@ -195,12 +198,12 @@
       padding-bottom: 8px;
       margin-bottom: 14px;
     }
-    .modal-rows { display: flex; flex-direction: column; gap: 8px; }
+    .modal-rows { display: flex; flex-direction: column; gap: 10px; }
     .modal-row {
       display: flex;
       align-items: flex-start;
       gap: 8px;
-      font-size: 0.92rem;
+      font-size: 0.95rem;
     }
     .modal-row .icon { font-size: 1.1rem; flex-shrink: 0; }
     .modal-row .label { color: var(--muted); white-space: nowrap; }
@@ -214,20 +217,58 @@
       color: #fff;
       border: none;
       border-radius: 50%;
-      width: 34px; height: 34px;
+      width: 38px; height: 38px;
       font-size: 1.1rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background .15s;
+      -webkit-tap-highlight-color: transparent;
     }
     .close-btn:hover { background: rgba(0,0,0,.6); }
 
     footer {
       text-align: center;
-      padding: 24px;
+      padding: 28px 20px;
       font-size: 0.82rem;
       color: var(--muted);
       border-top: 1px solid #eee;
+    }
+
+    /* ── 태블릿: 3열 ── */
+    @media (max-width: 768px) {
+      header { padding: 36px 16px 26px; }
+      header p.sub { font-size: 0.9rem; }
+      main { padding: 28px 16px 50px; }
+      .cat-card { width: calc(33.33% - 11px); }
+    }
+
+    /* ── 모바일: 2열 + 바텀시트 모달 ── */
+    @media (max-width: 480px) {
+      header { padding: 28px 14px 22px; }
+      header .paw { font-size: 1.5rem; }
+      main { padding: 22px 14px 50px; }
+      .grid { gap: 12px; }
+      .cat-card { width: calc(50% - 6px); }
+      .cat-card .card-name { font-size: 0.92rem; }
+
+      /* 모달: 화면 하단에서 올라오는 바텀시트 */
+      .overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal {
+        border-radius: 24px 24px 0 0;
+        max-width: 100%;
+        max-height: 88vh;
+        animation: slideUp .28s cubic-bezier(.34,1.3,.64,1);
+      }
+      @keyframes slideUp {
+        from { transform: translateY(40px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      .modal-photo { aspect-ratio: 16 / 9; }
+      .modal-body { padding: 18px 20px 36px; }
+      .modal-name { font-size: 1.7rem; }
     }
   </style>
 </head>
@@ -240,8 +281,9 @@
   <div class="badge-row">
     <span class="badge">유기묘카페</span>
     <span class="badge">입양 가능</span>
-    <span class="badge">enthalpy_go</span>
+    <span class="badge">@enthalpy_go</span>
     <span class="badge">DM주세요💌</span>
+    <span class="badge" id="catCount"></span>
   </div>
 </header>
 
@@ -471,10 +513,14 @@
 
   // ── 별점 렌더링 ────────────────────────────────────────────────
   function stars(n) {
-    return "★".repeat(n) + "☆".repeat(5 - n);
+    if (typeof n !== "number" || isNaN(n)) return String(n);
+    const clamped = Math.min(5, Math.max(0, Math.round(n)));
+    return "★".repeat(clamped) + "☆".repeat(5 - clamped);
   }
 
   // ── 카드 렌더링 ────────────────────────────────────────────────
+  document.getElementById("catCount").textContent = `🐱 ${cats.length}마리`;
+
   const grid = document.getElementById("catGrid");
   cats.forEach((cat, i) => {
     const card = document.createElement("div");
