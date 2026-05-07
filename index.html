@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>냥글냥글 엔탈피</title>
+  <style>
+    :root {
+      --primary: #f4a04a;
+      --secondary: #f9c784;
+      --bg: #fdf6ec;
+      --card-bg: #fff;
+      --text: #3a2f1e;
+      --muted: #8a7a66;
+      --radius: 18px;
+      --shadow: 0 4px 18px rgba(0,0,0,0.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    header {
+      text-align: center;
+      padding: 52px 20px 36px;
+      background: linear-gradient(160deg, #fff9f0 0%, #fdecd3 100%);
+      border-bottom: 2px solid var(--secondary);
+    }
+    header .paw { font-size: 2rem; letter-spacing: 4px; }
+    header h1 {
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: -1px;
+      margin: 8px 0 6px;
+    }
+    header p.sub {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    /* ── GRID ── */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── CAT CARD ── */
+    .cat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+    .cat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 28px rgba(244,160,74,.22);
+      border-color: var(--primary);
+    }
+    .cat-card .photo-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .cat-card .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .cat-card .photo-wrap .placeholder {
+      font-size: 3.5rem;
+    }
+    .cat-card .card-info {
+      padding: 10px 10px 12px;
+      text-align: center;
+    }
+    .cat-card .card-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .cat-card .card-breed {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .cat-card .card-gender {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .cat-card .card-gender.f { background: #fde8f0; color: #d4558a; }
+    .cat-card .card-gender.m { background: #e0eeff; color: #4a7fc1; }
+
+    /* ── MODAL ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      overflow: hidden;
+      animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+    }
+    @keyframes popIn {
+      from { transform: scale(.85); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .modal-photo {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .modal-photo img { width:100%; height:100%; object-fit:cover; }
+    .modal-photo .placeholder { font-size: 6rem; }
+
+    .modal-body {
+      padding: 22px 24px 28px;
+    }
+    .modal-tagline {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .modal-name {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--text);
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+    .modal-rows { display: flex; flex-direction: column; gap: 8px; }
+    .modal-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.92rem;
+    }
+    .modal-row .icon { font-size: 1.1rem; flex-shrink: 0; }
+    .modal-row .label { color: var(--muted); white-space: nowrap; }
+    .modal-row .val { font-weight: 600; }
+    .stars { color: #f4a04a; letter-spacing: 1px; }
+
+    .close-btn {
+      position: absolute;
+      top: 12px; right: 14px;
+      background: rgba(0,0,0,.35);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 34px; height: 34px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .close-btn:hover { background: rgba(0,0,0,.6); }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="paw">🐾🐾🐾</div>
+  <h1>냥글냥글 엔탈피</h1>
+  <p class="sub">우리 고양이들을 만나보세요 &mdash; 오늘도 평화로운 골골생활 💛</p>
+  <div class="badge-row">
+    <span class="badge">유기묘카페</span>
+    <span class="badge">입양 가능</span>
+    <span class="badge">🐱 35마리</span>
+  </div>
+</header>
+
+<main>
+  <p class="section-title">🐱 우리 아이들을 소개해요</p>
+  <div class="grid" id="catGrid"></div>
+</main>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="close-btn" onclick="closeModalBtn()">✕</button>
+    <div class="modal-photo" id="modalPhoto"></div>
+    <div class="modal-body">
+      <div class="modal-tagline" id="modalTagline"></div>
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-rows" id="modalRows"></div>
+    </div>
+  </div>
+</div>
+
+<footer>냥글냥글 엔탈피 &copy; 2026 &nbsp;|&nbsp; 모든 고양이는 사랑받아 마땅합니다 🐾</footer>
+
+<script>
+  // ── 고양이 데이터 ──────────────────────────────────────────────
+  // photo: 이미지 파일 경로 (없으면 이모지 사용)
+  // gender: 'f' = 여아, 'm' = 남아
+  // friendly: 1~5 (별점)
+  const cats = [
+    {
+      name: "스프",
+      tagline: "오늘도 평화로운 골골생활.",
+      photo: "", emoji: "🐱",
+      gender: "f", breed: "코리안숏헤어", friendly: 3,
+      desc: "쓰담쓰담 궁디팡팡 너무 좋아요 :)"
+    },
+    {
+      name: "두부",
+      tagline: "포근하고 말랑말랑한 아이.",
+      photo: "", emoji: "🐈",
+      gender: "m", breed: "코리안숏헤어", friendly: 4,
+      desc: "밥 먹을 때만 빼고 항상 졸고 있어요."
+    },
+    {
+      name: "감자",
+      tagline: "뒹굴뒹굴 자유영혼.",
+      photo: "", emoji: "🟤",
+      gender: "m", breed: "코리안숏헤어", friendly: 2,
+      desc: "경계심이 있지만 간식으로 마음을 열 수 있어요."
+    },
+    {
+      name: "나비",
+      tagline: "세상에서 제일 우아한 고양이.",
+      photo: "", emoji: "🦋",
+      gender: "f", breed: "터키시앙고라 믹스", friendly: 5,
+      desc: "낯선 사람에게도 먼저 다가와요. 사교성 만점!"
+    },
+    {
+      name: "꼬물",
+      tagline: "작지만 당차요.",
+      photo: "", emoji: "🌿",
+      gender: "f", breed: "코리안숏헤어", friendly: 3,
+      desc: "장난감을 정말 좋아해요. 낚시대에 미쳐있음."
+    },
+    {
+      name: "호떡",
+      tagline: "따뜻하고 달콤한 아이.",
+      photo: "", emoji: "🥞",
+      gender: "m", breed: "코리안숏헤어", friendly: 4,
+      desc: "사람 무릎 위에 앉는 걸 좋아해요."
+    },
+    {
+      name: "모카",
+      tagline: "고소하고 진한 매력.",
+      photo: "", emoji: "☕",
+      gender: "m", breed: "러시안블루 믹스", friendly: 3,
+      desc: "조용하고 침착한 성격. 독립적이에요."
+    },
+    {
+      name: "솜사탕",
+      tagline: "구름처럼 포근해요.",
+      photo: "", emoji: "☁️",
+      gender: "f", breed: "페르시안 믹스", friendly: 5,
+      desc: "브러싱을 너무 좋아해요. 털 관리 필수!"
+    },
+    {
+      name: "치즈",
+      tagline: "노오란 치즈냥이.",
+      photo: "", emoji: "🧀",
+      gender: "m", breed: "코리안숏헤어", friendly: 4,
+      desc: "애교가 넘쳐요. 항상 울면서 쫓아다녀요."
+    },
+    {
+      name: "먹구름",
+      tagline: "겉은 무뚝뚝, 속은 다정.",
+      photo: "", emoji: "🌩️",
+      gender: "m", breed: "코리안숏헤어", friendly: 2,
+      desc: "친해지면 누구보다 집착하는 아이에요."
+    },
+    {
+      name: "순두부",
+      tagline: "부드럽고 연한 아이.",
+      photo: "", emoji: "⬜",
+      gender: "f", breed: "코리안숏헤어", friendly: 4,
+      desc: "얌전하고 차분해요. 어른 고양이와 잘 어울려요."
+    },
+    {
+      name: "팥빙수",
+      tagline: "여름처럼 시원한 눈빛.",
+      photo: "", emoji: "🍧",
+      gender: "f", breed: "샴 믹스", friendly: 3,
+      desc: "눈이 파래서 한번 보면 못 잊어요."
+    },
+    {
+      name: "쿠키",
+      tagline: "바삭하고 달콤한 성격.",
+      photo: "", emoji: "🍪",
+      gender: "m", breed: "코리안숏헤어", friendly: 5,
+      desc: "아이들과도 잘 지내는 순한 아이에요."
+    },
+    {
+      name: "마카롱",
+      tagline: "알록달록 사랑스러운 아이.",
+      photo: "", emoji: "🌸",
+      gender: "f", breed: "코리안숏헤어", friendly: 4,
+      desc: "놀이를 정말 좋아하는 활발한 성격."
+    },
+    {
+      name: "버터",
+      tagline: "부드럽게 녹아드는 아이.",
+      photo: "", emoji: "🧈",
+      gender: "m", breed: "코리안숏헤어", friendly: 5,
+      desc: "누가 안아도 도망가지 않는 천사."
+    },
+    {
+      name: "카카오",
+      tagline: "진하고 풍부한 매력.",
+      photo: "", emoji: "🍫",
+      gender: "m", breed: "코리안숏헤어", friendly: 3,
+      desc: "혼자 노는 걸 좋아해서 독립 생활 가능."
+    },
+    {
+      name: "진저",
+      tagline: "생강처럼 톡 쏘는 매력.",
+      photo: "", emoji: "🫚",
+      gender: "f", breed: "코리안숏헤어", friendly: 2,
+      desc: "처음엔 까칠하지만 금방 마음 열어요."
+    },
+    {
+      name: "라떼",
+      tagline: "부드러운 크림빛 아이.",
+      photo: "", emoji: "🥛",
+      gender: "f", breed: "터키시앙고라 믹스", friendly: 4,
+      desc: "긴 털이 자랑인 우아한 고양이."
+    },
+    {
+      name: "콩이",
+      tagline: "통통한 볼살이 매력.",
+      photo: "", emoji: "🫘",
+      gender: "m", breed: "코리안숏헤어", friendly: 4,
+      desc: "식욕 왕성. 간식 소리만 들으면 냅다 달려와요."
+    },
+    {
+      name: "보리",
+      tagline: "건강하고 튼튼한 아이.",
+      photo: "", emoji: "🌾",
+      gender: "m", breed: "코리안숏헤어", friendly: 3,
+      desc: "다른 고양이들과 잘 어울려요."
+    },
+    {
+      name: "아몬드",
+      tagline: "갸름한 얼굴이 포인트.",
+      photo: "", emoji: "🤎",
+      gender: "f", breed: "아비시니안 믹스", friendly: 3,
+      desc: "호기심이 많아서 항상 뭔가를 탐색해요."
+    },
+    {
+      name: "미소",
+      tagline: "보기만 해도 미소 짓게 돼요.",
+      photo: "", emoji: "😊",
+      gender: "f", breed: "코리안숏헤어", friendly: 5,
+      desc: "이름처럼 항상 행복해 보이는 아이."
+    },
+    {
+      name: "도토리",
+      tagline: "작고 귀여운 알밤.",
+      photo: "", emoji: "🌰",
+      gender: "m", breed: "코리안숏헤어", friendly: 3,
+      desc: "높은 곳을 좋아해서 항상 캣타워 꼭대기에 있어요."
+    },
+    {
+      name: "뭉치",
+      tagline: "뭉툭하고 든든한 아이.",
+      photo: "", emoji: "🐾",
+      gender: "m", breed: "메인쿤 믹스", friendly: 4,
+      desc: "덩치가 크지만 엄청 순해요."
+    },
+    {
+      name: "하양이",
+      tagline: "눈처럼 하얀 천사.",
+      photo: "", emoji: "❄️",
+      gender: "f", breed: "코리안숏헤어", friendly: 5,
+      desc: "흰 털이 많이 빠지지만 그 이상의 사랑을 줘요."
+    },
+    {
+      name: "검둥이",
+      tagline: "밤하늘처럼 신비로운 아이.",
+      photo: "", emoji: "🌑",
+      gender: "m", breed: "코리안숏헤어", friendly: 3,
+      desc: "어두운 털빛과 달리 성격은 밝고 장난기 많아요."
+    },
+    {
+      name: "얼룩",
+      tagline: "세상에 하나뿐인 무늬.",
+      photo: "", emoji: "🐆",
+      gender: "f", breed: "코리안숏헤어", friendly: 4,
+      desc: "독특한 얼룩무늬가 시선을 끄는 아이."
+    },
+    {
+      name: "복실",
+      tagline: "복슬복슬 털 부자.",
+      photo: "", emoji: "🦁",
+      gender: "f", breed: "노르웨이숲 믹스", friendly: 4,
+      desc: "털이 엄청나게 많아요. 브러싱 매일 해줘야 해요."
+    },
+    {
+      name: "점박이",
+      tagline: "깜찍한 점이 트레이드마크.",
+      photo: "", emoji: "🐟",
+      gender: "m", breed: "코리안숏헤어", friendly: 3,
+      desc: "코 위에 까만 점이 있어서 엄청 귀여워요."
+    },
+    {
+      name: "꽃순이",
+      tagline: "꽃처럼 화사한 아이.",
+      photo: "", emoji: "🌺",
+      gender: "f", breed: "코리안숏헤어", friendly: 5,
+      desc: "보호자에게 잘 안기고 골골송도 잘 불러요."
+    },
+    {
+      name: "달이",
+      tagline: "둥글둥글 달처럼 온화해요.",
+      photo: "", emoji: "🌙",
+      gender: "f", breed: "코리안숏헤어", friendly: 4,
+      desc: "밤에 특히 활발해지는 야행성 아이."
+    },
+    {
+      name: "별이",
+      tagline: "반짝반짝 눈빛이 예뻐요.",
+      photo: "", emoji: "⭐",
+      gender: "m", breed: "샴 믹스", friendly: 3,
+      desc: "파란 눈이 별처럼 빛나는 멋진 아이."
+    },
+    {
+      name: "구름",
+      tagline: "두둥실 구름처럼 자유로운 아이.",
+      photo: "", emoji: "⛅",
+      gender: "m", breed: "페르시안 믹스", friendly: 2,
+      desc: "독립심이 강하지만 제 공간이 생기면 적응 잘 해요."
+    },
+    {
+      name: "바람",
+      tagline: "쌩쌩 달리는 바람둥이.",
+      photo: "", emoji: "💨",
+      gender: "m", breed: "코리안숏헤어", friendly: 3,
+      desc: "엄청 활발해요. 넓은 집에서 뛰어놀게 해주세요!"
+    },
+    {
+      name: "햇살",
+      tagline: "따뜻한 햇살 같은 존재.",
+      photo: "", emoji: "☀️",
+      gender: "f", breed: "코리안숏헤어", friendly: 5,
+      desc: "누구에게나 상냥하고 사람을 너무 좋아해요."
+    },
+  ];
+
+  // ── 별점 렌더링 ────────────────────────────────────────────────
+  function stars(n) {
+    return "★".repeat(n) + "☆".repeat(5 - n);
+  }
+
+  // ── 카드 렌더링 ────────────────────────────────────────────────
+  const grid = document.getElementById("catGrid");
+  cats.forEach((cat, i) => {
+    const card = document.createElement("div");
+    card.className = "cat-card";
+    card.onclick = () => openModal(i);
+
+    const photoHTML = cat.photo
+      ? `<img src="${cat.photo}" alt="${cat.name}" loading="lazy" />`
+      : `<span class="placeholder">${cat.emoji}</span>`;
+
+    const genderLabel = cat.gender === "f" ? "여아" : "남아";
+
+    card.innerHTML = `
+      <div class="photo-wrap">${photoHTML}</div>
+      <div class="card-info">
+        <div class="card-name">${cat.name}</div>
+        <div class="card-breed">${cat.breed}</div>
+        <span class="card-gender ${cat.gender}">${genderLabel}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // ── 모달 ───────────────────────────────────────────────────────
+  const overlay = document.getElementById("overlay");
+
+  function openModal(i) {
+    const cat = cats[i];
+    const photoHTML = cat.photo
+      ? `<img src="${cat.photo}" alt="${cat.name}" />`
+      : `<span class="placeholder">${cat.emoji}</span>`;
+
+    document.getElementById("modalPhoto").innerHTML = photoHTML;
+    document.getElementById("modalTagline").textContent = cat.tagline;
+    document.getElementById("modalName").textContent = cat.name;
+
+    const genderLabel = cat.gender === "f" ? "여아 🎀" : "남아 💙";
+    document.getElementById("modalRows").innerHTML = `
+      <div class="modal-row">
+        <span class="icon">👤</span>
+        <span class="label">성별&nbsp;:</span>
+        <span class="val">${genderLabel}</span>
+      </div>
+      <div class="modal-row">
+        <span class="icon">❤️</span>
+        <span class="label">친화력&nbsp;:</span>
+        <span class="val stars">${stars(cat.friendly)}</span>
+      </div>
+      <div class="modal-row">
+        <span class="icon">🐾</span>
+        <span class="label">품종&nbsp;:</span>
+        <span class="val">${cat.breed}</span>
+      </div>
+      <div class="modal-row">
+        <span class="icon">👆</span>
+        <span class="label" style="white-space:normal">${cat.desc}</span>
+      </div>
+    `;
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+  }
+  function closeModalBtn() {
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      overlay.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+  });
+</script>
+</body>
+</html>
