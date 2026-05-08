@@ -557,6 +557,7 @@
 
   function openModal(i) {
     const cat = cats[i];
+    gtag('event', 'cat_card_click', { cat_name: cat.name });
     const photoHTML = cat.photo
       ? `<img src="${cat.photo}" alt="${cat.name}" />`
       : `<span class="placeholder">${cat.emoji}</span>`;
